@@ -1,3 +1,7 @@
+mod test_utils;
+
+use test_utils::spawn_app::spawn_app;
+
 #[tokio::test]
 async fn health_check_works() {
     // Arrange
@@ -14,12 +18,4 @@ async fn health_check_works() {
     // Assert
     assert!(response.status().is_success());
     assert_eq!(Some(0), response.content_length());
-}
-// Launch our application in the background ~somehow~
-fn spawn_app() {
-    // Launch the server as a background task
-    let server = url_shortener::run_server().expect("Failed to bind address");
-    // tokio::spawn returns a handle to the spawned future,
-    // but we have no use for it here, hence the non-binding let
-    let _ = tokio::spawn(server);
 }

@@ -9,7 +9,7 @@ use routes::health_check::health_check;
 pub fn run_server(tcp_listener: TcpListener) -> std::io::Result<Server> {
     let adress = tcp_listener.local_addr().unwrap();
 
-    println!("Server started on: {}", format!("http://{}", adress));
+    println!("Server started on: http://{}", adress);
 
     let server = HttpServer::new(|| {
         App::new()

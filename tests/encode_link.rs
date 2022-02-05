@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use rstest::rstest;
 
 mod test_utils;
@@ -9,12 +11,15 @@ async fn encode_link_returns_a_200_for_valid_form_data() {
     // Arrange
     let app_address = spawn_app();
     let client = reqwest::Client::new();
+
+    let mut body = HashMap::new();
+    body.insert("name", "alvi");
+    body.insert("url", "https://alvi.dev");
+
     // Act
-    let body = "url=https%3A%2F%2Falvi.dev%2Ffr&name=Alvi";
     let response = client
         .post(&format!("{}/encode_link", &app_address))
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .body(body)
+        .json(&body)
         .send()
         .await
         .expect("Failed to execute request.");
@@ -23,21 +28,31 @@ async fn encode_link_returns_a_200_for_valid_form_data() {
 }
 
 #[rstest]
-#[case("url=https%3A%2F%2Falvi.dev%2Ffr", "missing the name")]
-#[case("name=Alvi", "missing the url")]
-#[case("", "missing both the url and name")]
+#[case({
+    let mut body = HashMap::new();
+    body.insert("url", "https://alvi.dev");
+    body
+}, "missing the name")]
+#[case({
+    let mut body = HashMap::new();
+    body.insert("name", "alvi");
+    body
+}, "missing the url")]
+#[case({
+    let body = HashMap::new();
+    body
+}, "missing both the url and name")]
 #[tokio::test]
 async fn subscribe_returns_a_400_when_data_is_missing(
+    #[case] body: HashMap<&str, &str>,
     #[case] error_message: String,
-    #[case] t: String,
 ) {
     // Arrange
     let app_address = spawn_app();
     let client = reqwest::Client::new();
     let response = client
         .post(&format!("{}/encode_link", &app_address))
-        .header("Content-Type", "application/x-www-form-urlencoded")
-        .body(t.clone())
+        .json(&body)
         .send()
         .await
         .expect("Failed to execute request.");

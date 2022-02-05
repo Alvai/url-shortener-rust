@@ -3,6 +3,7 @@ use std::net::TcpListener;
 
 mod routes;
 
+use routes::encode_link::encode_link;
 use routes::greet::greet;
 use routes::health_check::health_check;
 
@@ -15,6 +16,7 @@ pub fn run_server(tcp_listener: TcpListener) -> std::io::Result<Server> {
         App::new()
             .route("/", web::get().to(greet))
             .route("/health_check", web::get().to(health_check))
+            .route("/encode_link", web::post().to(encode_link))
             .route("/{name}", web::get().to(greet))
     })
     .listen(tcp_listener)?
